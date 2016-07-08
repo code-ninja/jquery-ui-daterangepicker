@@ -1,0 +1,51 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0" />    
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.min.css" rel="stylesheet">
+    <link href="jquery.comiseo.daterangepicker.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/2.3.1/moment.min.js"></script>
+    <script src="jquery.comiseo.daterangepicker.js"></script>
+    <script>
+        $(function() { 
+            $("#e1").daterangepicker({
+                onClick: function(e) {
+                    console.log(e)  
+                },
+                applyOnMenuSelect: false,
+                datepickerOptions: {
+                    numberOfMonths: 2
+                },
+            }); 
+        });
+    </script>
+    <style>
+        #e1 
+        ,.comiseo-daterangepicker-triggerbutton
+        {
+            -webkit-appearance: none;
+        }
+        .comiseo-daterangepicker-triggerbutton:focus {
+            outline: 0;
+        }
+        
+        .comiseo-daterangepicker-preset-selected {
+            background: #eee;
+            border-radius: 4px;
+            box-shadow: 0 0 1px 0 #777;
+        }
+        
+        .ui-range-start a,
+        .ui-range-end a {
+            background: #333 !important;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <input id="e1" name="e1">
+</body>    
+</html>    

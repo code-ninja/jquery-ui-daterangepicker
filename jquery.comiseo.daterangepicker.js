@@ -166,6 +166,7 @@
 	function buildPresetsMenu(classnameContext, options, onClick) {
 		var $self,
 			$menu;
+			$presets = [];
 
 		function init() {
 			$self = $('<div></div>')
@@ -174,11 +175,11 @@
 			$menu = $('<ul></ul>');
 
 			$.each(options.presetRanges, function() {
-				$('<li><a href="#">' + this.text + '</a></li>')
+				$presets.push($('<li><a href="#">' + this.text + '</a></li>')
 				.data('dateStart', this.dateStart)
 				.data('dateEnd', this.dateEnd)
 				.click(onClick)
-				.appendTo($menu);
+				.appendTo($menu));
 			});
 
 			$self.append($menu);
@@ -189,7 +190,8 @@
 
 		init();
 		return {
-			getElement: function() { return $self; }
+			getElement: function() { return $self; },
+			getPresets: function() { return $presets; },
 		};
 	}
 
@@ -238,11 +240,15 @@
 			var result = [
 					true, // selectable
 					range.start && ((+date === +range.start) || (range.end && range.start <= date && date <= range.end)) ? 'ui-state-highlight' : '' // class to be added
-				],
-				userResult = [true, '', ''];
+				]
+
+            result[1] += range.start && +range.start === +date ? ' ui-range-start': '';
+            result[1] += range.end && +range.end === +date ? ' ui-range-end': '';
+            
+            var userResult = [true, '', ''];
 
 			if (options.datepickerOptions.hasOwnProperty('beforeShowDay')) {
-				userResult = options.datepickerOptions.beforeShowDay(date);
+				userResult = options.datepickerOptions.beforeShowDay(date,range);
 			}
 			return [
 				result[0] && userResult[0],
@@ -308,6 +314,9 @@
 					.text(options.applyButtonText)
 					.button();
 
+			    if (options.applyButtonClass)	
+			        clearButton.addClass(options.applyButtonClass)
+
 				$self.append(applyButton);
 			}
 
@@ -316,6 +325,9 @@
 					.text(options.clearButtonText)
 					.button();
 
+			    if (options.clearButtonClass)	
+			        clearButton.addClass(options.clearButtonClass)
+
 				$self.append(clearButton);
 			}
 
@@ -323,6 +335,9 @@
 				cancelButton = $('<button type="button" class="ui-priority-secondary"></button>')
 					.text(options.cancelButtonText)
 					.button();
+
+			    if (options.cancelButtonClass)	
+			        clearButton.addClass(options.cancelButtonClass)
 
 				$self.append(cancelButton);
 			}
@@ -550,6 +565,9 @@
 			var $this = $(this),
 				start = $this.data('dateStart')().startOf('day').toDate(),
 				end = $this.data('dateEnd')().startOf('day').toDate();
+
+			    $this.addClass(classname +'-preset-selected').siblings().removeClass(classname +'-preset-selected')
+
 			calendar.setRange({ start: start, end: end });
 			if (options.applyOnMenuSelect) {
 				close(event);
@@ -633,6 +651,7 @@
 				isOpen = true;
 				autoFitNeeded && autoFit();
 				calendar.scrollToRangeStart();
+				highlightPreset();
 				$container.show();
 				reposition();
 			}
@@ -640,6 +659,21 @@
 				options.onOpen();
 			}
 			instance._trigger('open', event, {instance: instance});
+		}
+		
+		function highlightPreset() {
+    		var p = presetsMenu.getPresets();
+    		var range = getRange()
+    		$('.ui-preset-selected').removeClass('ui-preset-selected');
+    		if (range)
+    		for (var i=0; i<p.length; i++) {
+        		var start = $(p[i]).data('dateStart')().startOf('day').toDate().toString()
+        		var end = $(p[i]).data('dateEnd')().startOf('day').toDate().toString()
+        		if (range.start.toString() == start && range.end.toString() == end) {
+                    $(p[i]).addClass('ui-preset-selected')
+                    break;    		
+        		}
+    		}
 		}
 
 		function close(event) {

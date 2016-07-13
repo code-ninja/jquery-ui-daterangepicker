@@ -189,9 +189,25 @@
 		}
 
 		init();
+		
+		function highlightPreset(range) {
+    		var p = $presets;
+    		$('.ui-preset-selected').removeClass('ui-preset-selected');
+    		if (range)
+    		for (var i=0; i<p.length; i++) {
+        		var start = $(p[i]).data('dateStart')().startOf('day').toDate();
+        		var end = $(p[i]).data('dateEnd')().startOf('day').toDate();
+        		if (+range.start == +start && +range.end == +end) {
+                    $(p[i]).addClass('ui-preset-selected')
+                    break;    		
+        		}
+    		}
+		}
+		
 		return {
 			getElement: function() { return $self; },
 			getPresets: function() { return $presets; },
+			highlight: highlightPreset,
 		};
 	}
 
@@ -201,7 +217,7 @@
 	 * @param {String} classnameContext classname of the parent container
 	 * @param {Object} options
 	 */
-	function buildCalendar(classnameContext, options) {
+	function buildCalendar(classnameContext, options, presetsMenu) {
 		var $self,
 			range = {start: null, end: null}; // selected range
 
@@ -233,6 +249,7 @@
 			if (options.datepickerOptions.hasOwnProperty('onSelect')) {
 				options.datepickerOptions.onSelect(dateText, instance);
 			}
+			presetsMenu.highlight(range)
 		}
 
 		// called for each day in the datepicker before it is displayed
@@ -410,7 +427,7 @@
 		function init() {
 			triggerButton = buildTriggerButton($originalElement, classname, options);
 			presetsMenu = buildPresetsMenu(classname, options, usePreset);
-			calendar = buildCalendar(classname, options);
+			calendar = buildCalendar(classname, options, presetsMenu);
 			autoFit.numberOfMonths = options.datepickerOptions.numberOfMonths; // save initial option!
 			if (autoFit.numberOfMonths instanceof Array) { // not implemented
 				options.autoFitCalendars = false;
@@ -566,7 +583,7 @@
 				start = $this.data('dateStart')().startOf('day').toDate(),
 				end = $this.data('dateEnd')().startOf('day').toDate();
 
-			    $this.addClass(classname +'-preset-selected').siblings().removeClass(classname +'-preset-selected')
+		    $this.addClass('ui-preset-selected').siblings().removeClass('ui-preset-selected')
 
 			calendar.setRange({ start: start, end: end });
 			if (options.applyOnMenuSelect) {
@@ -651,7 +668,7 @@
 				isOpen = true;
 				autoFitNeeded && autoFit();
 				calendar.scrollToRangeStart();
-				highlightPreset();
+				presetsMenu.highlight(getRange());
 				$container.show();
 				reposition();
 			}
@@ -659,21 +676,6 @@
 				options.onOpen();
 			}
 			instance._trigger('open', event, {instance: instance});
-		}
-		
-		function highlightPreset() {
-    		var p = presetsMenu.getPresets();
-    		var range = getRange()
-    		$('.ui-preset-selected').removeClass('ui-preset-selected');
-    		if (range)
-    		for (var i=0; i<p.length; i++) {
-        		var start = $(p[i]).data('dateStart')().startOf('day').toDate().toString()
-        		var end = $(p[i]).data('dateEnd')().startOf('day').toDate().toString()
-        		if (range.start.toString() == start && range.end.toString() == end) {
-                    $(p[i]).addClass('ui-preset-selected')
-                    break;    		
-        		}
-    		}
 		}
 
 		function close(event) {

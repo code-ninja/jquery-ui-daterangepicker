@@ -515,7 +515,14 @@
 				close(event);
 				reset();
 			});
-			$(window).resize(function() { isOpen ? autoFit() : autoFitNeeded = true; reposition() });
+			$(window).resize(function() { 
+    			isOpen ? autoFit() : autoFitNeeded = true; 
+    			if (triggerButton.getElement().is(':visible'))
+        			reposition() 
+                else
+                    close()
+            
+            });
 		}
 
 		function formatRangeForDisplay(range) {

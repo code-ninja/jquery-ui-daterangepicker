@@ -498,7 +498,6 @@
 						$calendar.datepicker('option', 'numberOfMonths', ++numberOfMonths);
 					}
 				}
-				reposition();
 				autoFitNeeded = false;
 			}
 		}
@@ -516,7 +515,7 @@
 				close(event);
 				reset();
 			});
-			$(window).resize(function() { isOpen ? autoFit() : autoFitNeeded = true; });
+			$(window).resize(function() { isOpen ? autoFit() : autoFitNeeded = true; reposition() });
 		}
 
 		function formatRangeForDisplay(range) {
@@ -677,11 +676,11 @@
 				triggerButton.getElement().addClass(classname + '-active');
 				$mask.show();
 				isOpen = true;
-				autoFitNeeded && autoFit();
+				autoFit();
+				reposition();
 				calendar.scrollToRangeStart();
 				$container.show();
 				presetsMenu.getElement().trigger('highlight',getRange())
-				reposition();
 			}
 			if (options.onOpen) {
 				options.onOpen();

@@ -677,10 +677,10 @@
 				$mask.show();
 				isOpen = true;
 				autoFit();
-				reposition();
 				calendar.scrollToRangeStart();
-				$container.show();
 				presetsMenu.getElement().trigger('highlight',getRange())
+				$container.show();
+				reposition();
 			}
 			if (options.onOpen) {
 				options.onOpen();

@@ -171,7 +171,7 @@
 		function init() {
 			$self = $('<div></div>')
 				.addClass(classnameContext + '-presets');
-
+				
 			$menu = $('<ul></ul>');
 
 			$.each(options.presetRanges, function() {
@@ -186,28 +186,29 @@
 
 			$menu.menu()
 				.data('ui-menu').delay = 0; // disable submenu delays
+
+    		$self.on('highlight',function(e,range) {
+        		if (range)
+        		$('li',$self).each(function(){
+
+            		var start = $(this).data('dateStart')().startOf('day').toDate();
+            		var end = $(this).data('dateEnd')().startOf('day').toDate();
+            		if (+range.start == +start && +range.end == +end) {
+                        $(this).addClass('ui-preset-selected')
+                            .siblings()
+                            .removeClass('ui-preset-selected')
+            		}
+
+        		})
+    		})
 		}
 
 		init();
 		
-		function highlightPreset(range) {
-    		var p = $presets;
-    		$('.ui-preset-selected').removeClass('ui-preset-selected');
-    		if (range)
-    		for (var i=0; i<p.length; i++) {
-        		var start = $(p[i]).data('dateStart')().startOf('day').toDate();
-        		var end = $(p[i]).data('dateEnd')().startOf('day').toDate();
-        		if (+range.start == +start && +range.end == +end) {
-                    $(p[i]).addClass('ui-preset-selected')
-                    break;    		
-        		}
-    		}
-		}
 		
 		return {
 			getElement: function() { return $self; },
 			getPresets: function() { return $presets; },
-			highlight: highlightPreset,
 		};
 	}
 
@@ -217,7 +218,7 @@
 	 * @param {String} classnameContext classname of the parent container
 	 * @param {Object} options
 	 */
-	function buildCalendar(classnameContext, options, presetsMenu) {
+	function buildCalendar(classnameContext, options) {
 		var $self,
 			range = {start: null, end: null}; // selected range
 
@@ -249,7 +250,8 @@
 			if (options.datepickerOptions.hasOwnProperty('onSelect')) {
 				options.datepickerOptions.onSelect(dateText, instance);
 			}
-			presetsMenu.highlight(range)
+			updatePresets()
+			//presetsMenu.highlight(range)
 		}
 
 		// called for each day in the datepicker before it is displayed
@@ -273,7 +275,13 @@
 				userResult[2]
 			];
 		}
-
+        
+        function updatePresets() {
+            
+            var p = $self.parent().find('.'+classnameContext+'-presets');
+            p.trigger('highlight',range)
+        }
+        
 		function updateAtMidnight() {
 			setTimeout(function() {
 				refresh();
@@ -302,7 +310,10 @@
 			getElement: function() { return $self; },
 			scrollToRangeStart: function() { return scrollToRangeStart(); },
 			getRange: function() { return range; },
-			setRange: function(value) { range = value; refresh(); },
+			setRange: function(value) { 
+    			range = value; refresh();
+    			updatePresets()
+    			},
 			refresh: refresh,
 			reset: reset,
 			enforceOptions: enforceOptions
@@ -427,7 +438,7 @@
 		function init() {
 			triggerButton = buildTriggerButton($originalElement, classname, options);
 			presetsMenu = buildPresetsMenu(classname, options, usePreset);
-			calendar = buildCalendar(classname, options, presetsMenu);
+			calendar = buildCalendar(classname, options);
 			autoFit.numberOfMonths = options.datepickerOptions.numberOfMonths; // save initial option!
 			if (autoFit.numberOfMonths instanceof Array) { // not implemented
 				options.autoFitCalendars = false;
@@ -668,8 +679,8 @@
 				isOpen = true;
 				autoFitNeeded && autoFit();
 				calendar.scrollToRangeStart();
-				presetsMenu.highlight(getRange());
 				$container.show();
+				presetsMenu.getElement().trigger('highlight',getRange())
 				reposition();
 			}
 			if (options.onOpen) {
